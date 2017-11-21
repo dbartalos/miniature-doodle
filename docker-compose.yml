@@ -41,8 +41,8 @@ services:
       dockerfile: Dockerfile
     env_file: .env
     volumes:
-      - postgres-volume:/var/lib/postgresql/data
-      - postgres-volume-backup:/backup
+      - ./db/data:/var/lib/postgresql/data
+      - ./db/backup:/backup
     networks:
       - back-tier
     expose:
