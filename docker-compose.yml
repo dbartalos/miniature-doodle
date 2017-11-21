@@ -1,0 +1,71 @@
+version: "3"
+
+services:
+  proxy:
+    container_name: nginx
+    restart: always
+    build:
+      context: ./proxy/
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - front-tier
+
+  web:
+    container_name: django
+    #restart: always
+    build:
+      context: ./web/
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - ./web/djangoproject:/code
+    ports:
+      - "801:8000"
+    expose: 
+      - "8000"
+    networks:
+      - front-tier
+      - back-tier
+    command: bash -c "gunicorn djangoproject.wsgi:application -w 2 -b 0.0.0.0:8000"
+    depends_on:
+      - db
+      - cache
+
+  db:
+    container_name: postgres
+    restart: always
+    build:
+      context: ./db/
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+      - postgres-volume-backup:/backup
+    networks:
+      - back-tier
+    expose:
+      - "5432"
+
+  cache:
+    container_name: redis
+    restart: always
+    build:
+      context: ./cache/
+      dockerfile: Dockerfile
+    networks:
+      - front-tier
+    expose:
+      - "6379"
+
+networks:
+  front-tier:
+  back-tier:
+
+volumes:
+  web-volume:
+  postgres-volume:
+  postgres-volume-backup:
+
+    
