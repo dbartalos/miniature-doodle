@@ -21,8 +21,6 @@ services:
     env_file: .env
     volumes:
       - ./web/djangoproject:/code
-    ports:
-      - "801:8000"
     expose: 
       - "8000"
     networks:
